@@ -1,16 +1,21 @@
 const { Cluster } = require('puppeteer-cluster');
 const fs = require("fs");
 const { executablePath } = require("puppeteer");
-const mysql = require("mysql2");
-const { workerData } = require('worker_threads');
-const con = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "Iam_thebest1",
-    database: "yahyaDB",
-    multipleStatements: true,
-    // workerCreationDelay: 100
-});
+const { Client } = require('pg');
+
+// const mysql = require("mysql2");
+// const con = mysql.createConnection({
+//     host: "localhost",
+//     user: "root",
+//     password: "Iam_thebest1",
+//     database: "yahyaDB",
+//     multipleStatements: true,
+//     // workerCreationDelay: 100
+// });
+
+const conString = "postgresql://root:6RHocZ4oxHzeJBPLQoCd5u5G0IwZRjM2@dpg-cqfs4j9u0jms7387eiu0-a.oregon-postgres.render.com/yahyadb?ssl=true";
+var client = new Client(conString);
+client.connect();
 
 var values = [];
 var colors = [];
@@ -18,13 +23,21 @@ var colors = [];
 
 
 // FETCH NAMES OF ASSETS
-con.connect(async (err) => {
-    if (err) throw err;
-    con.query("SELECT asset FROM asset_values", async function (err, result, fields) {
-        if (err) throw err;
-        await result.forEach(async (res) => { values.push([res.asset]); colors.push([res.asset]); });
-    });
-});
+
+// con.connect(async (err) => {
+//     if (err) throw err;
+//     con.query("SELECT asset FROM asset_values", async function (err, result, fields) {
+//         if (err) throw err;
+//         await result.forEach(async (res) => { values.push([res.asset]); colors.push([res.asset]); });
+//     });
+// });
+
+(async () => {
+    var query = await client.query("SELECT asset FROM asset_values");
+    query.rows.forEach(row => {
+        values.push([row.asset]); colors.push([row.asset]);
+    })
+})();
 
 (async () => {
 
@@ -188,16 +201,25 @@ con.connect(async (err) => {
 
     let queries = "";
     values.forEach((value) => {
-        queries += "UPDATE asset_values SET 1m = " + value[1] + " , 2m = " + value[2] + " , 3m = " + value[3] + " , 5m = " + value[4] + " , 10m = " + value[5] + " , 15m = " + value[6] + " , 30m = " + value[7] + " , 45m = " + value[8] + " , 1h = " + value[9] + " , 2h = " + value[10] + " , 3h = " + value[11] + " , 4h = " + value[12] + " , 1d = " + value[13] + " , 1w = " + value[14] + " WHERE asset = '" + value[0] + "'; ";
+        queries += `UPDATE asset_values SET "1m" = ` + value[1] + ` , "2m" = ` + value[2] + ` , "3m" = ` + value[3] + ` , "5m" = ` + value[4] + ` , "10m" = ` + value[5] + ` , "15m" = ` + value[6] + ` , "30m" = ` + value[7] + ` , "45m" = ` + value[8] + ` , "1h" = ` + value[9] + ` , "2h" = ` + value[10] + ` , "3h" = ` + value[11] + ` , "4h" = ` + value[12] + ` , "1d" = ` + value[13] + ` , "1w" = ` + value[14] + ` WHERE asset = '` + value[0] + `'; `;
     });
     colors.forEach((value) => {
-        queries += "UPDATE asset_colors SET 1m = " + value[1] + " , 2m = " + value[2] + " , 3m = " + value[3] + " , 5m = " + value[4] + " , 10m = " + value[5] + " , 15m = " + value[6] + " , 30m = " + value[7] + " , 45m = " + value[8] + " , 1h = " + value[9] + " , 2h = " + value[10] + " , 3h = " + value[11] + " , 4h = " + value[12] + " , 1d = " + value[13] + " , 1w = " + value[14] + " WHERE asset = '" + value[0] + "'; ";
+        queries += `UPDATE asset_colors SET "1m" = ` + value[1] + ` , "2m" = ` + value[2] + ` , "3m" = ` + value[3] + ` , "5m" = ` + value[4] + ` , "10m" = ` + value[5] + ` , "15m" = ` + value[6] + ` , "30m" = ` + value[7] + ` , "45m" = ` + value[8] + ` , "1h" = ` + value[9] + ` , "2h" = ` + value[10] + ` , "3h" = ` + value[11] + ` , "4h" = ` + value[12] + ` , "1d" = ` + value[13] + ` , "1w" = ` + value[14] + ` WHERE asset = '` + value[0] + `'; `;
     });
-    con.connect(async (err) => {
-        if (err) throw err;
-        con.query(queries, function (err, result) {
-            if (err) throw err;
-            console.log("table updated successfully");
-        });
-    });
+    //
+    // con.connect(async (err) => {
+    //     if (err) throw err;
+    //     con.query(queries, function (err, result) {
+    //         if (err) throw err;
+    //         console.log("table updated successfully");
+    //     });
+    // });
+
+    (async () => {
+        await client.query(queries);
+        await client.end();
+        console.log("table updated successfully");
+    })();
+
+
 });
