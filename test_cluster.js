@@ -127,7 +127,7 @@ var colors = [];
         await page.type('input[placeholder="Search"]', asset, { delay: 100 });
         // 3- CLICK THE first result of ASSET
         await new Promise((resolve) => setTimeout(resolve, 1000));
-        const firstresult = await page.waitForSelector('span em', { timeout: 60000 });
+        const firstresult = await page.waitForSelector('span em', { timeout: 0 });
         const firstResult_Value = await firstresult.evaluate(el => el.textContent);
         // await page.evaluate((el) => el.click(), times[i]);
 
