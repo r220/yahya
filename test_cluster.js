@@ -95,10 +95,10 @@ var colors = [];
         await page.waitForFunction(() => {
             side = document.querySelector('button[aria-label="Object Tree and Data Window"]');
             return side !== null;
-        });
+        }, { timeout: 60000 });
         let side_pressed = await page.$eval('button[aria-label="Object Tree and Data Window"]', el => el.getAttribute("aria-pressed"));
         if (side_pressed === false) {
-            await page.waitForSelector('button[aria-label="Object Tree and Data Window"]');
+            await page.waitForSelector('button[aria-label="Object Tree and Data Window"]', { timeout: 60000 });
             await page.click('button[aria-label="Object Tree and Data Window"]');
         }
         await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -107,7 +107,7 @@ var colors = [];
         await page.waitForFunction(() => {
             datawindow = document.querySelector('#data-window');
             return datawindow !== null;
-        });
+        }, { timeout: 60000 });
         let dataWindow_pressed = await page.$eval('#data-window', el => el.getAttribute("aria-selected"));
         if (dataWindow_pressed !== true) {
             await page.evaluate(() => document.getElementById('data-window').click());
@@ -153,7 +153,7 @@ var colors = [];
                 await page.waitForFunction(() => {
                     text = document.querySelectorAll("div.values-_gbYDtbd > div:nth-child(4) > div:nth-child(2) > span").textContent;
                     return text !== '' || text !== null;
-                }, { timeout: 5000 });
+                }, { timeout: 10000 });
                 let close = parseFloat((await page.evaluate(
                     () =>
                         document.querySelector(
